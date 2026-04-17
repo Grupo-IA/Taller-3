@@ -7,6 +7,7 @@ Hint: Usa las funciones get_atoms() y evaluate() de logic_core.py.
 """
 
 from __future__ import annotations
+from xml.parsers.expat import model
 
 from src.logic_core import Formula, get_atoms, evaluate
 
@@ -69,14 +70,14 @@ def check_satisfiable(formula: Formula) -> tuple[bool, dict[str, bool] | None]:
     """
     # === YOUR CODE HERE ===
     
-    atoms = get_atoms(formula)  # obtener todos los átomos de la fórmula
+    atomos = get_atoms(formula)  # obtener todos los átomos de la fórmula
 
     # recorrer todos los modelos posibles
-    for model in get_all_models(atoms):
+    for modelo in get_all_models(atomos):
         # evaluar la fórmula en el modelo actual
-        if evaluate(formula, model):
+        if evaluate(formula, modelo):
             # si encontramos un modelo donde la fórmula es verdadera retorna T
-            return (True, model)
+            return (True, modelo)
     # si ningún modelo satisface la fórmula retorna F
     return (False, None)
 
@@ -101,7 +102,14 @@ def check_valid(formula: Formula) -> bool:
           Alternativamente, verifica que sea verdadera en TODOS los modelos.
     """
     # === YOUR CODE HERE ===
-    raise NotImplementedError("Implementa check_valid()")
+    
+    atomos = get_atoms(formula)
+    for modelo in get_all_models(atomos):
+        if not evaluate(formula, modelo):
+            return False  # existe un contraejemplo
+
+    return True  # valido para todos los modelos
+
     # === END YOUR CODE ===
 
 
