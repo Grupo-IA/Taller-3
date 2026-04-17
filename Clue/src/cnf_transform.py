@@ -114,7 +114,33 @@ def eliminate_implication(formula: Formula) -> Formula:
           solo los nodos Implies.
     """
     # === YOUR CODE HERE ===
-    raise NotImplementedError("Implementa eliminate_implication()")
+   
+    # caso base: fórmula sin transformación
+    if isinstance(formula, Atom):
+        return formula
+
+    # caso implicación: eliminar usando equivalencia lógica
+    if isinstance(formula, Implies):
+        # uso IA: equivalencia A → B ≡ ¬A ∨ B
+        antecedent = eliminate_implication(formula.antecedent)
+        consequent = eliminate_implication(formula.consequent)
+        return Or(Not(antecedent), consequent)
+
+    # caso negación: usar recursión sobre el operando
+    if isinstance(formula, Not):
+        return Not(eliminate_implication(formula.operand))
+
+    # caso conjunción: usar recursión sobre cada operando
+    if isinstance(formula, And):
+        return And(*(eliminate_implication(c) for c in formula.conjuncts))
+
+    # caso disyunción: usar recursión sobre cada operando
+    if isinstance(formula, Or):
+        return Or(*(eliminate_implication(d) for d in formula.disjuncts))
+
+   # fallback si pasa algo
+    return formula
+
     # === END YOUR CODE ===
 
 
