@@ -162,5 +162,16 @@ def truth_table(formula: Formula) -> list[tuple[dict[str, bool], bool]]:
     Hint: Combina get_all_models() y evaluate().
     """
     # === YOUR CODE HERE ===
-    raise NotImplementedError("Implementa truth_table()")
+    atomos = get_atoms(formula)  # extraer átomos
+    
+    tabla = []
+
+    # recorrer todos los modelos posibles
+    for modelo in get_all_models(atomos):
+        # evaluar la fórmula en el modelo actual
+        result = evaluate(formula, modelo)
+    
+        tabla.append((modelo, result))
+
+    return tabla
     # === END YOUR CODE ===
