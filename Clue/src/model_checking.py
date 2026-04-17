@@ -31,7 +31,21 @@ def get_all_models(atoms: set[str]) -> list[dict[str, bool]]:
           Cada bit corresponde al valor de verdad de un atomo.
     """
     # === YOUR CODE HERE ===
-    raise NotImplementedError("Implementa get_all_models()")
+    lista_atomos = sorted(atoms)  # mantener orden 
+    n = len(lista_atomos)
+    modelos = []
+
+
+    # assignar cada atomo usando bits de i
+    for i in range(2 ** n): # iterar sobre todos los numeros de 0 a 2^n - 1
+        modelo = {}
+        for j, atom in enumerate(lista_atomos):
+            # (AYUDA IA) : hacer corrimiento a la derecha para aislar el bit correspondiente al atomo actual,
+            #  y luego hacer AND con 1 para obtener su valor, mientras
+            # (n-1-j) asegura que el primer átomo use el bit más significativo
+            modelo[atom] = bool((i >> (n - 1 - j)) & 1)
+        modelos.append(modelo)
+    return modelos
     # === END YOUR CODE ===
 
 
