@@ -9,7 +9,7 @@ Hint: Usa las funciones get_atoms() y evaluate() de logic_core.py.
 from __future__ import annotations
 from xml.parsers.expat import model
 
-from src.logic_core import Formula, get_atoms, evaluate
+from src.logic_core import And, Formula, Not, get_atoms, evaluate
 
 
 def get_all_models(atoms: set[str]) -> list[dict[str, bool]]:
@@ -134,7 +134,11 @@ def check_entailment(kb: list[Formula], query: Formula) -> bool:
           y la query sea falsa.
     """
     # === YOUR CODE HERE ===
-    raise NotImplementedError("Implementa check_entailment()")
+    
+    formula = And(*kb, Not(query)) if kb else Not(query) # KB AND (NOT query)
+    satisfiable, _ = check_satisfiable(formula)
+    return not satisfiable
+
     # === END YOUR CODE ===
 
 
