@@ -7,8 +7,9 @@ Hint: Usa las funciones get_atoms() y evaluate() de logic_core.py.
 """
 
 from __future__ import annotations
+from xml.parsers.expat import model
 
-from src.logic_core import Formula
+from src.logic_core import And, Formula, Not, get_atoms, evaluate
 
 
 def get_all_models(atoms: set[str]) -> list[dict[str, bool]]:
@@ -31,7 +32,21 @@ def get_all_models(atoms: set[str]) -> list[dict[str, bool]]:
           Cada bit corresponde al valor de verdad de un atomo.
     """
     # === YOUR CODE HERE ===
-    raise NotImplementedError("Implementa get_all_models()")
+    lista_atomos = sorted(atoms)  # mantener orden 
+    n = len(lista_atomos)
+    modelos = []
+
+
+    # assignar cada atomo usando bits de i
+    for i in range(2 ** n): # iterar sobre todos los numeros de 0 a 2^n - 1
+        modelo = {}
+        for j, atom in enumerate(lista_atomos):
+            # (AYUDA IA) : hacer corrimiento a la derecha para aislar el bit correspondiente al atomo actual,
+            #  y luego hacer AND con 1 para obtener su valor, mientras
+            # (n-1-j) asegura que el primer átomo use el bit más significativo
+            modelo[atom] = bool((i >> (n - 1 - j)) & 1)
+        modelos.append(modelo)
+    return modelos
     # === END YOUR CODE ===
 
 
@@ -54,7 +69,18 @@ def check_satisfiable(formula: Formula) -> tuple[bool, dict[str, bool] | None]:
           la formula en cada uno usando evaluate().
     """
     # === YOUR CODE HERE ===
-    raise NotImplementedError("Implementa check_satisfiable()")
+    
+    atomos = get_atoms(formula)  # obtener todos los átomos de la fórmula
+
+    # recorrer todos los modelos posibles
+    for modelo in get_all_models(atomos):
+        # evaluar la fórmula en el modelo actual
+        if evaluate(formula, modelo):
+            # si encontramos un modelo donde la fórmula es verdadera retorna T
+            return (True, modelo)
+    # si ningún modelo satisface la fórmula retorna F
+    return (False, None)
+
     # === END YOUR CODE ===
 
 
@@ -76,7 +102,14 @@ def check_valid(formula: Formula) -> bool:
           Alternativamente, verifica que sea verdadera en TODOS los modelos.
     """
     # === YOUR CODE HERE ===
-    raise NotImplementedError("Implementa check_valid()")
+    
+    atomos = get_atoms(formula)
+    for modelo in get_all_models(atomos):
+        if not evaluate(formula, modelo):
+            return False  # existe un contraejemplo
+
+    return True  # valido para todos los modelos
+
     # === END YOUR CODE ===
 
 
@@ -101,7 +134,11 @@ def check_entailment(kb: list[Formula], query: Formula) -> bool:
           y la query sea falsa.
     """
     # === YOUR CODE HERE ===
-    raise NotImplementedError("Implementa check_entailment()")
+    
+    formula = And(*kb, Not(query)) if kb else Not(query) # KB AND (NOT query)
+    satisfiable, _ = check_satisfiable(formula)
+    return not satisfiable
+
     # === END YOUR CODE ===
 
 
@@ -125,5 +162,16 @@ def truth_table(formula: Formula) -> list[tuple[dict[str, bool], bool]]:
     Hint: Combina get_all_models() y evaluate().
     """
     # === YOUR CODE HERE ===
-    raise NotImplementedError("Implementa truth_table()")
+    atomos = get_atoms(formula)  # extraer átomos
+    
+    tabla = []
+
+    # recorrer todos los modelos posibles
+    for modelo in get_all_models(atomos):
+        # evaluar la fórmula en el modelo actual
+        result = evaluate(formula, modelo)
+    
+        tabla.append((modelo, result))
+
+    return tabla
     # === END YOUR CODE ===
