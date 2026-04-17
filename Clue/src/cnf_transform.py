@@ -5,7 +5,7 @@ El pipeline completo to_cnf() llama a todas las transformaciones en orden.
 
 from __future__ import annotations
 
-from src.logic_core import And, Atom, Formula, Not, Or
+from src.logic_core import And, Atom, Formula, Not, Or, Implies, Iff
 
 
 # --- FUNCION GUÍA SUMINISTRADA COMPLETA ---
@@ -60,7 +60,40 @@ def eliminate_iff(formula: Formula) -> Formula:
           y solo transforma cuando encuentras un Iff.
     """
     # === YOUR CODE HERE ===
-    raise NotImplementedError("Implementa eliminate_iff()")
+    
+    # caso base: nada que transformar
+    if isinstance(formula, Atom):
+        return formula
+
+    # caso bicondicional
+    if isinstance(formula, Iff):
+        # uso IA: equivalencia lógica y recursividad
+        left = eliminate_iff(formula.left)
+        right = eliminate_iff(formula.right)
+        return And(Implies(left, right), Implies(right, left))
+
+    # caso negación: recursión sobre operando
+    if isinstance(formula, Not):
+        return Not(eliminate_iff(formula.operand))
+
+    # caso conjunción: recursión sobre cada uno
+    if isinstance(formula, And):
+        return And(*(eliminate_iff(c) for c in formula.conjuncts))
+
+    # caso disyunción: recursión sobre cada uno
+    if isinstance(formula, Or):
+        return Or(*(eliminate_iff(d) for d in formula.disjuncts))
+
+    # caso implicación: procesar subformulas
+    if isinstance(formula, Implies):
+        return Implies(
+            eliminate_iff(formula.antecedent),
+            eliminate_iff(formula.consequent)
+        )
+
+    # fallback si pasa algo
+    return formula
+
     # === END YOUR CODE ===
 
 
