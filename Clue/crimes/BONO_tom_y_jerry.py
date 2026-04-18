@@ -5,7 +5,7 @@ El queso desapareció de la cocina durante la noche. Tom fue visto cerca de la n
 arañazos en la puerta. Jerry tiene acceso a la nevera y fue encontrado con boronas de queso. 
 Spike estuvo en el patio toda la noche y no estuvo cerca de la cocina. Nibbles fue visto en el
 pasillo pero no tiene acceso a la nevera ni evidencia en su contra. Tom acusa a Jerry;
-Jerry dice que Tom rompió la cerradura; Tom dice que Jerry actuó solo.
+Jerry dice que Tom dejo arañazos en la puerta; Tom dice que Jerry actuó solo.
 
 Como detective, he llegado a las siguientes conclusiones:
 Quien estaba lejos de la escena queda descartado. 
