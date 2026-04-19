@@ -4,7 +4,7 @@
 
 ---
 
-## 👥 Equipo de Detectives (Grupo X)
+## 👥 Equipo de Detectives (Grupo 8)
 * **Karen Fuentes** - 202122467
 * **Sofia Sarasty** - 202511871
 * **Juan Pablo Camacho Peña** - 202110977
