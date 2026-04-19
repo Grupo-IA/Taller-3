@@ -170,7 +170,43 @@ def push_negation_inward(formula: Formula) -> Formula:
           asi que no necesitas manejar esos tipos.
     """
     # === YOUR CODE HERE ===
-    raise NotImplementedError("Implementa push_negation_inward()")
+    if isinstance(formula, Atom):
+        return formula
+    
+    if isinstance(formula, Not):
+        inner = formula.operand
+        if isinstance(inner, And):
+            procesados = []
+            for c in inner.conjuncts:
+                hijo_transformado = push_negation_inward(Not(c))
+                procesados.append(hijo_transformado)
+            return Or(*procesados)
+        
+        if isinstance(inner, Or):
+            procesados = []
+            for d in inner.disjuncts:
+                hijo_transformado = push_negation_inward(Not(d))
+                procesados.append(hijo_transformado)
+            return And(*procesados)
+        
+        if isinstance(inner, Not):
+            return push_negation_inward(inner.operand)
+        
+        return Not(push_negation_inward(inner))
+
+    if isinstance(formula, And):
+        procesados = []
+        for c in formula.conjuncts:
+            procesados.append(push_negation_inward(c))
+        return And(*procesados)
+    
+    if isinstance(formula, Or):
+        procesados = []
+        for d in formula.disjuncts:
+            procesados.append(push_negation_inward(d))
+        return Or(*procesados)
+    
+    return formula
     # === END YOUR CODE ===
 
 
@@ -197,7 +233,32 @@ def distribute_or_over_and(formula: Formula) -> Formula:
           asi que solo veras Atom, Not(Atom), And y Or.
     """
     # === YOUR CODE HERE ===
-    raise NotImplementedError("Implementa distribute_or_over_and()")
+    if isinstance(formula, Atom) or isinstance(formula, Not):
+        return formula
+    
+    if isinstance(formula, And):
+        procesados = []
+        for c in formula.conjuncts:
+            procesados.append(distribute_or_over_and(c))
+        return And(*procesados)
+    
+    if isinstance(formula, Or):
+        disjuncts_procesados = []
+        for d in formula.disjuncts:
+            disjuncts_procesados.append(distribute_or_over_and(d))
+        
+        for i, d in enumerate(disjuncts_procesados):
+            if isinstance(d, And):
+                others = disjuncts_procesados[:i] + disjuncts_procesados[i+1:]
+                
+                new_conjuncts = []
+                for a in d.conjuncts:
+                    new_conjuncts.append(distribute_or_over_and(Or(a, *others)))
+                return And(*new_conjuncts)
+        
+        return Or(*disjuncts_procesados)
+
+    return formula
     # === END YOUR CODE ===
 
 
@@ -223,7 +284,38 @@ def flatten(formula: Formula) -> Formula:
           Si al final solo queda 1 elemento, retornalo directamente.
     """
     # === YOUR CODE HERE ===
-    raise NotImplementedError("Implementa flatten()")
+    if isinstance(formula, Atom) or isinstance(formula, Not):
+        return formula
+    
+    if isinstance(formula, And):
+        new_conjuncts = []
+        for c in formula.conjuncts:
+            c_flat = flatten(c)
+            if isinstance(c_flat, And):
+                new_conjuncts.extend(c_flat.conjuncts)
+            else:
+                new_conjuncts.append(c_flat)
+        
+        if len(new_conjuncts) > 1:
+            return And(*new_conjuncts)
+        else:
+            return new_conjuncts[0]
+
+    if isinstance(formula, Or):
+        new_disjuncts = []
+        for d in formula.disjuncts:
+            d_flat = flatten(d)
+            if isinstance(d_flat, Or):
+                new_disjuncts.extend(d_flat.disjuncts)
+            else:
+                new_disjuncts.append(d_flat)
+            
+        if len(new_disjuncts) > 1:
+            return Or(*new_disjuncts)
+        else:
+            return new_disjuncts[0]
+
+    return formula
     # === END YOUR CODE ===
 
 
