@@ -42,9 +42,10 @@ def crear_kb() -> KnowledgeBase:
 # === YOUR CODE HERE ===
     
     # 1. Variables lógicas que usaremos en nuestras reglas para hacerlas genéricas
-    X = Term("X", is_var=True)
-    Y = Term("Y", is_var=True)
-    Objeto = Term("Objeto", is_var=True)
+    X = Term("$X")
+    Y = Term("$Y")
+    Objeto = Term("$Objeto")
+    R = Term("$R")
 
     # ==========================
     # HECHOS (Los datos del caso)
