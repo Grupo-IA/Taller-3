@@ -39,7 +39,84 @@ def crear_kb() -> KnowledgeBase:
     secretaria_luna   = Term("secretaria_luna")
     vaso_adulterado   = Term("vaso_adulterado")
 
-    # === YOUR CODE HERE ===
+# === YOUR CODE HERE ===
+    
+    # 1. Variables lógicas que usaremos en nuestras reglas para hacerlas genéricas
+    X = Term("X", is_var=True)
+    Y = Term("Y", is_var=True)
+    Objeto = Term("Objeto", is_var=True)
+
+    # ==========================
+    # HECHOS (Los datos del caso)
+    # ==========================
+    
+    # Coartadas verificadas e inexistentes
+    kb.add_fact(Predicate("coartada_verificada", (enfermera_campos,)))
+    kb.add_fact(Predicate("sin_coartada", (abogado_restrepo,)))
+    kb.add_fact(Predicate("sin_coartada", (sobrino_esteban,)))
+    kb.add_fact(Predicate("sin_coartada", (secretaria_luna,)))
+
+    # Motivos de la herencia
+    kb.add_fact(Predicate("hereda_actualmente", (abogado_restrepo,)))
+    kb.add_fact(Predicate("pierde_con_cambio", (abogado_restrepo,)))
+    kb.add_fact(Predicate("hereda_actualmente", (sobrino_esteban,)))
+    kb.add_fact(Predicate("pierde_con_cambio", (sobrino_esteban,)))
+    # (Nota: La Secretaria Luna gana con el cambio, pero no pierde, por lo que no le añadimos el hecho de 'pierde_con_cambio')
+
+    # Evidencia física
+    kb.add_fact(Predicate("huellas_en", (sobrino_esteban, vaso_adulterado)))
+    kb.add_fact(Predicate("objeto_crimen", (vaso_adulterado,)))
+
+    # Dinámicas entre los sospechosos (acusaciones y coartadas dadas)
+    kb.add_fact(Predicate("acusa", (sobrino_esteban, secretaria_luna)))
+    kb.add_fact(Predicate("acusa", (abogado_restrepo, sobrino_esteban)))
+    kb.add_fact(Predicate("da_coartada", (secretaria_luna, sobrino_esteban)))
+
+    # ==========================
+    # REGLAS (Las deducciones lógicas)
+    # ==========================
+    
+    # Regla 1: Quien tiene coartada verificada por medios objetivos queda descartado.
+    kb.add_rule(Rule(
+        Predicate("descartado", (X,)),
+        [Predicate("coartada_verificada", (X,))]
+    ))
+
+    # Regla 2: Quien hereda actualmente y perdería con el cambio de testamento tiene motivo doble.
+    kb.add_rule(Rule(
+        Predicate("motivo_doble", (X,)),
+        [Predicate("hereda_actualmente", (X,)), Predicate("pierde_con_cambio", (X,))]
+    ))
+
+    # Regla 3: Quien tiene huellas en el objeto del crimen tiene evidencia física en su contra.
+    kb.add_rule(Rule(
+        Predicate("evidencia_fisica", (X,)),
+        [Predicate("huellas_en", (X, Objeto)), Predicate("objeto_crimen", (Objeto,))]
+    ))
+
+    # Regla 4: Quien tiene motivo doble, sin coartada y con evidencia física en su contra es culpable.
+    kb.add_rule(Rule(
+        Predicate("culpable", (X,)),
+        [Predicate("motivo_doble", (X,)), Predicate("sin_coartada", (X,)), Predicate("evidencia_fisica", (X,))]
+    ))
+
+    # Regla 5: Cuando el culpable acusa a otra persona para desviar la investigación, esa acusación es un desvío sospechoso.
+    kb.add_rule(Rule(
+        Predicate("desvio_sospechoso", (X, Y)),
+        [Predicate("culpable", (X,)), Predicate("acusa", (X, Y))]
+    ))
+
+    # Regla 6: Quien da coartada al culpable está encubriendo el crimen.
+    kb.add_rule(Rule(
+        Predicate("encubre", (X, Y)),
+        [Predicate("da_coartada", (X, Y)), Predicate("culpable", (Y,))]
+    ))
+
+    # Regla 7: Una acusación es corroborada cuando el acusador también tiene motivo doble y el acusado tiene evidencia física.
+    kb.add_rule(Rule(
+        Predicate("acusacion_corroborada", (X, Y)),
+        [Predicate("acusa", (X, Y)), Predicate("motivo_doble", (X,)), Predicate("evidencia_fisica", (Y,))]
+    ))
 
     # === END YOUR CODE ===
 

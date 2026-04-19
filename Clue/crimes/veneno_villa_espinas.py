@@ -35,7 +35,71 @@ def crear_kb() -> KnowledgeBase:
     bernardo       = Term("bernardo")
     frasco_arsenico = Term("frasco_arsenico")
 
-    # === YOUR CODE HERE ===
+# === YOUR CODE HERE ===
+    
+    # 1. Variables lógicas para reglas genéricas
+    X = Term("X", is_var=True)
+    Y = Term("Y", is_var=True)
+    Objeto = Term("Objeto", is_var=True)
+
+    # ==========================
+    # HECHOS (Datos y premisas)
+    # ==========================
+    
+    # El frasco es el arma y Reynaldo tiene sus huellas en él
+    kb.add_fact(Predicate("arma_crimen", (frasco_arsenico,)))
+    kb.add_fact(Predicate("huellas_en", (reynaldo, frasco_arsenico)))
+    
+    # Coartadas y ubicaciones
+    kb.add_fact(Predicate("lejos_escena", (pablo,)))
+    kb.add_fact(Predicate("lejos_escena", (bernardo,)))
+    kb.add_fact(Predicate("sin_coartada_verificada", (reynaldo,)))
+
+    # Testimonios, acusaciones y coartadas dadas
+    kb.add_fact(Predicate("testimonia_contra", (pablo, reynaldo)))
+    kb.add_fact(Predicate("da_coartada", (margot, reynaldo)))
+    kb.add_fact(Predicate("da_coartada", (reynaldo, margot)))
+
+    # ==========================
+    # REGLAS (Deducciones)
+    # ==========================
+    
+    # Regla 1: Quien tiene huellas en el arma del crimen tiene evidencia directa en su contra.
+    kb.add_rule(Rule(
+        Predicate("evidencia_directa", (X,)),
+        [Predicate("huellas_en", (X, Objeto)), Predicate("arma_crimen", (Objeto,))]
+    ))
+
+    # Regla 2: Quien estuvo lejos de la escena durante el crimen está descartado como culpable.
+    kb.add_rule(Rule(
+        Predicate("descartado", (X,)),
+        [Predicate("lejos_escena", (X,))]
+    ))
+
+    # Regla 3: El testimonio de alguien descartado como culpable es confiable.
+    kb.add_rule(Rule(
+        Predicate("testimonio_confiable", (X, Y)),
+        [Predicate("descartado", (X,)), Predicate("testimonia_contra", (X, Y))]
+    ))
+
+    # Regla 4: Quien tiene evidencia directa en su contra y no tiene coartada verificada es culpable.
+    kb.add_rule(Rule(
+        Predicate("culpable", (X,)),
+        [Predicate("evidencia_directa", (X,)), Predicate("sin_coartada_verificada", (X,))]
+    ))
+
+    # Regla 5: Quien da coartada a un culpable lo está encubriendo.
+    # Nota: la consulta pide "encubridor" con un solo argumento según tu QuerySpec
+    kb.add_rule(Rule(
+        Predicate("encubridor", (X,)),
+        [Predicate("da_coartada", (X, Y)), Predicate("culpable", (Y,))]
+    ))
+
+    # Regla 6: Si dos personas se dan coartada mutuamente, existe una coartada cruzada.
+    kb.add_rule(Rule(
+        Predicate("coartada_cruzada", (X, Y)),
+        [Predicate("da_coartada", (X, Y)), Predicate("da_coartada", (Y, X))]
+    ))
 
     # === END YOUR CODE ===
 
