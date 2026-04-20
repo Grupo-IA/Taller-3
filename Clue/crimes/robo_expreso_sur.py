@@ -35,7 +35,69 @@ def crear_kb() -> KnowledgeBase:
     estuche_joyas  = Term("estuche_joyas")
     vagon_equipaje = Term("vagon_equipaje")
 
-    # === YOUR CODE HERE ===
+# === YOUR CODE HERE ===
+    
+    # 1. Variables lógicas para nuestras reglas genéricas
+    X = Term("$X")
+    Y = Term("$Y")
+    Objeto = Term("$Objeto")
+    R = Term("$R")
+
+    # ==========================
+    # HECHOS (Los datos del caso)
+    # ==========================
+    
+    # Posiciones durante el crimen
+    kb.add_fact(Predicate("en_escena", (elena,)))
+    kb.add_fact(Predicate("grabado_lejos", (don_rodrigo,)))
+    
+    # Roles en el caso y acusaciones
+    kb.add_fact(Predicate("victima", (marquesa,)))
+    kb.add_fact(Predicate("acusa", (marquesa, elena)))
+    
+    # Testimonios de coartada
+    kb.add_fact(Predicate("da_coartada", (victor, elena)))
+    kb.add_fact(Predicate("da_coartada", (elena, victor)))
+
+    # ==========================
+    # REGLAS (Las deducciones lógicas)
+    # ==========================
+    
+    # Regla 1: Quien fue grabado en cámara en un lugar alejado de la escena durante el crimen está descartado.
+    kb.add_rule(Rule(
+        Predicate("descartado", (X,)),
+        [Predicate("grabado_lejos", (X,))]
+    ))
+
+    # Regla 2: La víctima del crimen no tiene razón para mentir; es testigo imparcial.
+    kb.add_rule(Rule(
+        Predicate("testigo_imparcial", (X,)),
+        [Predicate("victima", (X,))]
+    ))
+
+    # Regla 3: La acusación de un testigo imparcial es creíble.
+    kb.add_rule(Rule(
+        Predicate("acusacion_creible", (X, Y)),
+        [Predicate("testigo_imparcial", (X,)), Predicate("acusa", (X, Y))]
+    ))
+
+    # Regla 4: Quien estaba en la escena y es acusado de forma creíble es culpable.
+    kb.add_rule(Rule(
+        Predicate("culpable", (X,)),
+        [Predicate("en_escena", (X,)), Predicate("acusacion_creible", (Y, X))]
+    ))
+
+    # Regla 5: Quien da coartada a un culpable lo está defendiendo.
+    kb.add_rule(Rule(
+        Predicate("defiende_al_culpable", (X,)),
+        [Predicate("da_coartada", (X, Y)), Predicate("culpable", (Y,))]
+    ))
+
+    # Regla 6: Si dos personas se dan coartada mutuamente, tienen una alianza de coartadas entre sí.
+    kb.add_rule(Rule(
+        Predicate("alianza_coartadas", (X, Y)),
+        [Predicate("da_coartada", (X, Y)), Predicate("da_coartada", (Y, X))]
+    ))
 
     # === END YOUR CODE ===
 
